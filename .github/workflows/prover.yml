@@ -13,9 +13,14 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y curl
+
       - name: Install Nexus CLI
         run: |
           curl https://cli.nexus.xyz/ | sh
+
       - name: Start Prover
         run: |
-          nexus-cli start-prover
+          sudo nexus-cli start-prover
+
+      - name: Keep Alive
+        run: sleep infinity        
