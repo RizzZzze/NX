@@ -1,0 +1,21 @@
+name: Nexus CLI Prover
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"  # Jalankan setiap 6 jam
+  workflow_dispatch:
+
+jobs:
+  run-prover:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Environment
+        run: |
+          sudo apt update
+          sudo apt install -y curl
+      - name: Install Nexus CLI
+        run: |
+          curl https://cli.nexus.xyz/ | sh
+      - name: Start Prover
+        run: |
+          nexus-cli start-prover
