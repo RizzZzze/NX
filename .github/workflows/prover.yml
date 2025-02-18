@@ -1,26 +1,40 @@
 name: Nexus CLI Prover
 
 on:
-  schedule:
-    - cron: "0 */6 * * *"  # Jalankan setiap 6 jam
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
-  run-prover:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Setup Environment
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Install Dependencies
         run: |
+          set -e
           sudo apt update
-          sudo apt install -y curl
+          sudo apt install curl -y
+          curl -s https://api.github.com/repos/Nexus-Network/nexus-cli/releases/latest \
+          | grep "browser_download_url.*linux_amd64.tar.gz" \
+          | cut -d '"' -f 4 \
+          | wget -qi -
+          tar -xvf nexus-cli_*_linux_amd64.tar.gz
+          sudo mv nexus-cli /usr/local/bin/nexus
+          rm nexus-cli_*_linux_amd64.tar.gz  # Hapus file yang sudah diekstrak
 
-      - name: Install Nexus CLI
-        run: |
-          curl https://cli.nexus.xyz/ | sh
+      - name: Check Installation
+        run: nexus version
 
-      - name: Start Prover
+      - name: Start Prover Node
         run: |
-          sudo nexus-cli start-prover
+          sudo nexus prover start \
+          --rpc-url https://testnet-rpc.nexus.xyz \
+          --chain-id nexus-testnet-ii \
+          --node-type prover
 
       - name: Keep Alive
         run: sleep infinity        
